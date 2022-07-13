@@ -14,9 +14,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Anamnesis.Files;
-using Anamnesis.GUI.Dialogs;
 using Anamnesis.Services;
 using Anamnesis.Styles.Drawers;
+using Anamnesis.Windows;
 using PropertyChanged;
 using Serilog;
 using XivToolsWpf;
@@ -477,7 +477,16 @@ public partial class FileBrowserView : UserControl
 		if (confirmed != true)
 			return;
 
-		this.Selected.Entry.Delete();
+		var entry = this.Selected.Entry;
+		if(entry is DirectoryInfo directory)
+		{
+			directory.Delete(true);
+		}
+		else
+		{
+			entry.Delete();
+		}
+
 		this.UpdateEntriesThreaded();
 	}
 

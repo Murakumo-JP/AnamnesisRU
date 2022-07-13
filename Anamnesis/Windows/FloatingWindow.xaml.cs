@@ -53,6 +53,7 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 	public IPanelGroupHost? ParentHost { get; set; }
 	public ContentPresenter PanelGroupArea => this.ContentPresenter;
 	public bool ShowBackground { get; set; } = true;
+	public bool IsOpen { get; private set; }
 
 	public IEnumerable<IPanelGroupHost> Children => this.children;
 
@@ -73,6 +74,9 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 
 		set => this.autoClose = value;
 	}
+
+	[DependsOn(nameof(CloseMode))]
+	public bool CanManualyClose => this.CloseMode == CloseModes.Manual || this.CloseMode == CloseModes.Both;
 
 	public string? TitleKey
 	{
@@ -163,6 +167,7 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 		Rect screen = this.ScreenRect;
 		Rect pos = this.Rect;
 		this.MaxHeight = screen.Height - pos.Top;
+		this.IsOpen = true;
 	}
 
 	public virtual void Show(IPanelGroupHost copy)
@@ -208,6 +213,7 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 	{
 		// base.Close();
 		this.BeginStoryboard("CloseStoryboard");
+		this.IsOpen = false;
 	}
 
 	protected virtual void OnWindowLoaded()
