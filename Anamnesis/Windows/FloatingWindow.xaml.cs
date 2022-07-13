@@ -75,6 +75,9 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 		set => this.autoClose = value;
 	}
 
+	[DependsOn(nameof(CloseMode))]
+	public bool CanManualyClose => this.CloseMode == CloseModes.Manual || this.CloseMode == CloseModes.Both;
+
 	public string? TitleKey
 	{
 		get => this.titleKey;

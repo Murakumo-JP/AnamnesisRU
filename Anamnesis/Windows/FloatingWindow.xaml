@@ -141,7 +141,7 @@
 						Width="22"
 						Click="OnTitlebarCloseButtonClicked"
 						Style="{StaticResource TransparentIconButton}"
-						Visibility="{Binding AutoClose, Converter={StaticResource !B2V}}">
+						Visibility="{Binding CanManualyClose, Converter={StaticResource B2V}}">
 						<XivToolsWpf:IconBlock
 							Foreground="{DynamicResource MaterialDesignToolForeground}"
 							Icon="Times" />
