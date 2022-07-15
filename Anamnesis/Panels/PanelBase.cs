@@ -5,6 +5,7 @@ namespace Anamnesis.Panels;
 
 using Anamnesis.Services;
 using FontAwesome.Sharp;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -26,9 +27,7 @@ public abstract class PanelBase : UserControl, IPanel, INotifyPropertyChanged
 	public event PropertyChangedEventHandler? PropertyChanged;
 
 	public ServiceManager Services => App.Services;
-
 	public IPanelGroupHost Host { get; set; }
-
 	public bool IsOpen => this.Host.IsOpen;
 
 	public string? TitleKey
@@ -84,6 +83,8 @@ public abstract class PanelBase : UserControl, IPanel, INotifyPropertyChanged
 		get => this.Host.TitleColor;
 		set => this.Host.TitleColor = value;
 	}
+
+	protected ILogger Log => Serilog.Log.ForContext(this.GetType());
 
 	public void DragMove() => this.Host.DragMove();
 

@@ -35,7 +35,7 @@ public class ServiceManager
 	public TerritoryService Territory { get; } = new();
 	public GameService Game { get; } = new();
 	public TimeService Time { get; } = new();
-	public CameraService CameraService { get; } = new();
+	public CameraService Camera { get; } = new();
 	public GposeService Gpose { get; } = new();
 	public GameDataService GameData { get; } = new();
 	public PoseService Pose { get; } = new();
@@ -66,7 +66,7 @@ public class ServiceManager
 		await this.InitializeService(this.Territory);
 		await this.InitializeService(this.Game);
 		await this.InitializeService(this.Time);
-		await this.InitializeService(this.CameraService);
+		await this.InitializeService(this.Camera);
 		await this.InitializeService(this.Gpose);
 		await this.InitializeService(this.GameData);
 		await this.InitializeService(this.Pose);
