@@ -21,6 +21,7 @@ public class NavigationService : ServiceBase<NavigationService>
 		{ "ActorInfo", typeof(ActorInfoPanel) },
 		{ "ActorCustomize", typeof(CustomizePanel) },
 		{ "ActorEquipment", typeof(EquipmentPanel) },
+		{ "Camera", typeof(CameraPanel) },
 	};
 
 	/// <summary>

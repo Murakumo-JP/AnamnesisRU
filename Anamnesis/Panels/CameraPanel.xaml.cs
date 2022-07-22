@@ -1,48 +1,29 @@
 ﻿// © Anamnesis.
 // Licensed under the MIT license.
 
-namespace Anamnesis.Views;
+namespace Anamnesis.Panels;
 
+using Anamnesis.Files;
+using Anamnesis.Memory;
 using System;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using Anamnesis.Files;
-using Anamnesis.Memory;
-using Anamnesis.Services;
-using Anamnesis.Styles.Drawers;
-using PropertyChanged;
-using Serilog;
 
-/// <summary>
-/// Interaction logic for SceneView.xaml.
-/// </summary>
-[AddINotifyPropertyChangedInterface]
-public partial class CameraEditor : UserControl
+public partial class CameraPanel : PanelBase
 {
 	private static DirectoryInfo? lastLoadDir;
 	private static DirectoryInfo? lastSaveDir;
 
-	public CameraEditor()
+	public CameraPanel(IPanelGroupHost host)
+		: base(host)
 	{
 		this.InitializeComponent();
-
 		this.ContentArea.DataContext = this;
 	}
 
-	public GameService GameService => GameService.Instance;
-	public TargetService TargetService => TargetService.Instance;
-	public GposeService GposeService => GposeService.Instance;
-	public TerritoryService TerritoryService => TerritoryService.Instance;
-	public TimeService TimeService => TimeService.Instance;
-	public CameraService CameraService => CameraService.Instance;
-	public SettingsService SettingsService => SettingsService.Instance;
-
-	private static ILogger Log => Serilog.Log.ForContext<CameraEditor>();
-
 	private async void OnImportCamera(object sender, RoutedEventArgs e)
 	{
-		ActorBasicMemory? targetActor = this.TargetService.PlayerTarget;
+		ActorBasicMemory? targetActor = this.Services.Target.PlayerTarget;
 		if (targetActor == null || !targetActor.IsValid)
 			return;
 		ActorMemory actorMemory = new ActorMemory();
@@ -74,13 +55,13 @@ public partial class CameraEditor : UserControl
 		}
 		catch (Exception ex)
 		{
-			Log.Error(ex, "Failed to load camera");
+			this.Log.Error(ex, "Failed to load camera");
 		}
 	}
 
 	private async void OnExportCamera(object sender, RoutedEventArgs e)
 	{
-		ActorBasicMemory? targetActor = this.TargetService.PlayerTarget;
+		ActorBasicMemory? targetActor = this.Services.Target.PlayerTarget;
 		if (targetActor == null || !targetActor.IsValid)
 			return;
 		ActorMemory actorMemory = new ActorMemory();
