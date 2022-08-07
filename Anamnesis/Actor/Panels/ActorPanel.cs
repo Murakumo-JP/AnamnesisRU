@@ -6,7 +6,9 @@ namespace Anamnesis.Actor.Panels;
 using Anamnesis.Memory;
 using Anamnesis.Panels;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
+using XivToolsWpf.Extensions;
 
 public abstract class ActorPanelBase : PanelBase
 {
@@ -17,6 +19,11 @@ public abstract class ActorPanelBase : PanelBase
 	}
 
 	public ActorMemory? Actor { get; private set; }
+
+	protected virtual Task OnActorChanged()
+	{
+		return Task.CompletedTask;
+	}
 
 	private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
 	{
@@ -41,6 +48,8 @@ public abstract class ActorPanelBase : PanelBase
 		this.Actor.Names.PropertyChanged += this.OnActorPropertyChanged;
 
 		this.UpdateTitle();
+
+		this.OnActorChanged().Run();
 	}
 
 	private void OnActorPropertyChanged(object? sender, PropertyChangedEventArgs e)

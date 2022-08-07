@@ -185,7 +185,7 @@
 			<ScrollViewer
 				Grid.Row="1"
 				Margin="1"
-				HorizontalScrollBarVisibility="Auto"
+				HorizontalScrollBarVisibility="Disabled"
 				VerticalScrollBarVisibility="Auto">
 				<ContentPresenter x:Name="ContentPresenter" />
 			</ScrollViewer>

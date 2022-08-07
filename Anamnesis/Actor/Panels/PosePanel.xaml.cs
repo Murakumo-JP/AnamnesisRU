@@ -1,39 +1,33 @@
 ﻿// © Anamnesis.
 // Licensed under the MIT license.
 
-namespace Anamnesis.Actor.Pages;
+namespace Anamnesis.Actor.Panels;
 
+using Anamnesis.Actor;
+using Anamnesis.Actor.Views;
+using Anamnesis.Memory;
+using Anamnesis.Navigation;
+using Anamnesis.Panels;
+using Anamnesis.Services;
+using FontAwesome.Sharp;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
-using Anamnesis.Files;
-using Anamnesis.Memory;
-using Anamnesis.Actor.Views;
-using Anamnesis.Services;
-using PropertyChanged;
-using Serilog;
 using XivToolsWpf;
-using CmQuaternion = Anamnesis.Memory.Quaternion;
-using Anamnesis.Windows;
 
-/// <summary>
-/// Interaction logic for CharacterPoseView.xaml.
-/// </summary>
-[AddINotifyPropertyChangedInterface]
-public partial class PosePage : UserControl
+using CmQuaternion = Anamnesis.Memory.Quaternion;
+
+public partial class PosePanel : ActorPanelBase
 {
 	public const double DragThreshold = 20;
 
 	public HashSet<BoneView> BoneViews = new HashSet<BoneView>();
-
-	private static DirectoryInfo? lastLoadDir;
-	private static DirectoryInfo? lastSaveDir;
 
 	private bool isLeftMouseButtonDownOnWindow;
 	private bool isDragging;
@@ -41,7 +35,8 @@ public partial class PosePage : UserControl
 
 	private Task? writeSkeletonTask;
 
-	public PosePage()
+	public PosePanel(IPanelGroupHost host)
+		: base(host)
 	{
 		this.InitializeComponent();
 
@@ -50,16 +45,8 @@ public partial class PosePage : UserControl
 		HistoryService.OnHistoryApplied += this.OnHistoryApplied;
 	}
 
-	public SettingsService SettingsService => SettingsService.Instance;
-	public GposeService GposeService => GposeService.Instance;
-	public PoseService PoseService => PoseService.Instance;
-	public TargetService TargetService => TargetService.Instance;
-
-	public bool IsFlipping { get; private set; }
-	public ActorMemory? Actor { get; private set; }
 	public SkeletonVisual3d? Skeleton { get; private set; }
-
-	private static ILogger Log => Serilog.Log.ForContext<PosePage>();
+	public bool IsFlipping { get; private set; }
 
 	public List<BoneView> GetBoneViews(BoneVisual3d bone)
 	{
@@ -73,6 +60,37 @@ public partial class PosePage : UserControl
 		}
 
 		return results;
+	}
+
+	protected override async Task OnActorChanged()
+	{
+		await base.OnActorChanged();
+
+		this.BoneViews.Clear();
+
+		if (this.Actor == null || this.Actor.ModelObject == null)
+		{
+			this.Skeleton?.Clear();
+			this.Skeleton = null;
+			return;
+		}
+
+		try
+		{
+			if (this.Skeleton == null)
+				this.Skeleton = new SkeletonVisual3d();
+
+			await this.Skeleton.SetActor(this.Actor);
+
+			if (this.writeSkeletonTask == null || this.writeSkeletonTask.IsCompleted)
+			{
+				this.writeSkeletonTask = Task.Run(this.WriteSkeletonThread);
+			}
+		}
+		catch (Exception ex)
+		{
+			this.Log.Error(ex, "Failed to bind skeleton to view");
+		}
 	}
 
 	/* Basic Idea:
@@ -115,7 +133,7 @@ public partial class PosePage : UserControl
 				}
 				else
 				{
-					Log.Warning("could not find right bone of: " + targetBone.BoneName);
+					this.Log.Warning("could not find right bone of: " + targetBone.BoneName);
 				}
 			}
 			else if (shouldFlip && targetBone.BoneName.EndsWith("_r"))
@@ -145,10 +163,8 @@ public partial class PosePage : UserControl
 
 	private void OnLoaded(object sender, RoutedEventArgs e)
 	{
-		this.OnDataContextChanged(null, default);
-
 		PoseService.EnabledChanged += this.OnPoseServiceEnabledChanged;
-		this.PoseService.PropertyChanged += this.PoseService_PropertyChanged;
+		this.Services.Pose.PropertyChanged += this.PoseService_PropertyChanged;
 	}
 
 	private void PoseService_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -178,52 +194,7 @@ public partial class PosePage : UserControl
 		}
 	}
 
-	private async void OnDataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
-	{
-		ActorMemory? newActor = this.DataContext as ActorMemory;
-
-		// don't do all this work unless we need to.
-		if (this.Actor == newActor)
-			return;
-
-		this.Actor = newActor;
-
-		this.ThreeDView.DataContext = null;
-		this.GuiView.DataContext = null;
-		this.MatrixView.DataContext = null;
-
-		this.BoneViews.Clear();
-
-		if (this.Actor == null || this.Actor.ModelObject == null)
-		{
-			this.Skeleton?.Clear();
-			this.Skeleton = null;
-			return;
-		}
-
-		try
-		{
-			if (this.Skeleton == null)
-				this.Skeleton = new SkeletonVisual3d();
-
-			await this.Skeleton.SetActor(this.Actor);
-
-			this.ThreeDView.DataContext = this.Skeleton;
-			this.GuiView.DataContext = this.Skeleton;
-			this.MatrixView.DataContext = this.Skeleton;
-
-			if (this.writeSkeletonTask == null || this.writeSkeletonTask.IsCompleted)
-			{
-				this.writeSkeletonTask = Task.Run(this.WriteSkeletonThread);
-			}
-		}
-		catch (Exception ex)
-		{
-			Log.Error(ex, "Failed to bind skeleton to view");
-		}
-	}
-
-	private async void OnImportClicked(object sender, RoutedEventArgs e)
+	/*private async void OnImportClicked(object sender, RoutedEventArgs e)
 	{
 		await this.ImportPose(false, PoseFile.Mode.Rotation);
 	}
@@ -260,7 +231,7 @@ public partial class PosePage : UserControl
 		if (this.Skeleton == null)
 			return;
 
-		if (this.PoseService.FreezePositions)
+		if (this.Services.Pose.FreezePositions)
 		{
 			bool? result = await GenericDialog.ShowLocalizedAsync("Pose_WarningExpresionPositions", "Common_Confirm", MessageBoxButton.OKCancel);
 
@@ -289,15 +260,15 @@ public partial class PosePage : UserControl
 
 			Type[] types = new[]
 			{
-					typeof(PoseFile),
-					typeof(CmToolPoseFile),
+				typeof(PoseFile),
+				typeof(CmToolPoseFile),
 			};
 
 			Shortcut[] shortcuts = new[]
 			{
-					FileService.DefaultPoseDirectory,
-					FileService.StandardPoseDirectory,
-					FileService.CMToolPoseSaveDir,
+				FileService.DefaultPoseDirectory,
+				FileService.StandardPoseDirectory,
+				FileService.CMToolPoseSaveDir,
 			};
 
 			OpenResult result = await FileService.Open(lastLoadDir, shortcuts, types);
@@ -331,7 +302,7 @@ public partial class PosePage : UserControl
 		}
 		catch (Exception ex)
 		{
-			Log.Error(ex, "Failed to load pose file");
+			this.Log.Error(ex, "Failed to load pose file");
 		}
 	}
 
@@ -357,7 +328,7 @@ public partial class PosePage : UserControl
 		}
 
 		lastSaveDir = await PoseFile.Save(lastSaveDir, this.Actor, this.Skeleton, bones);
-	}
+	}*/
 
 	private void OnViewChanged(object sender, SelectionChangedEventArgs e)
 	{
