@@ -18,7 +18,7 @@ public abstract class ActorPanelBase : PanelBase
 		this.DataContextChanged += this.OnDataContextChanged;
 	}
 
-	public override string Id => base.Id + "_" + this.Actor?.Names.DisplayName;
+	////public override string Id => base.Id + "_" + this.Actor?.Names.DisplayName;
 	public ActorMemory? Actor { get; private set; }
 
 	protected virtual Task OnActorChanged()
