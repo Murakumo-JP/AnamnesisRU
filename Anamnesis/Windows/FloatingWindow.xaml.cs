@@ -166,7 +166,13 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 
 		Rect screen = this.ScreenRect;
 		Rect pos = this.Rect;
-		this.MaxHeight = screen.Height - pos.Top;
+
+		double maxHeight = Math.Max(screen.Height - pos.Top, 0);
+
+		if (maxHeight == 0)
+			maxHeight = 1080;
+
+		this.MaxHeight = maxHeight;
 		this.IsOpen = true;
 	}
 

@@ -74,6 +74,48 @@ public class FileService : ServiceBase<FileService>
 		"Shortcuts/ffxiv.png",
 		"Shortcut_FfxivAppearance");
 
+	public static async Task Import()
+	{
+		#pragma warning disable SA1118
+		OpenResult result = await Open(
+			null,
+			new[]
+			{
+				Desktop,
+				DefaultPoseDirectory,
+				DefaultCharacterDirectory,
+				DefaultCameraDirectory,
+				StandardPoseDirectory,
+				CMToolPoseSaveDir,
+				CMToolAppearanceSaveDir,
+				FFxivDatCharacterDirectory,
+			},
+			new[]
+			{
+				typeof(CameraShotFile),
+				typeof(CharacterFile),
+				typeof(CmToolAppearanceFile),
+				typeof(CmToolAppearanceJsonFile),
+				typeof(CmToolGearsetFile),
+				typeof(CmToolLegacyAppearanceFile),
+				typeof(CmToolPoseFile),
+				typeof(DatCharacterFile),
+				typeof(PoseFile),
+			});
+
+		#pragma warning restore SA1118
+
+		if (result.File != null)
+		{
+			// TODO
+		}
+	}
+
+	public static async Task Export()
+	{
+
+	}
+
 	/// <summary>
 	/// Replaces special folders (%ApplicationData%) with the actual path.
 	/// </summary>
@@ -131,65 +173,45 @@ public class FileService : ServiceBase<FileService>
 
 		try
 		{
-			bool useExplorerBrowser = SettingsService.Current.UseWindowsExplorer;
-
-			if (!useExplorerBrowser)
+			result.Path = await App.Current.Dispatcher.InvokeAsync<FileInfo?>(() =>
 			{
-				List<FileFilter> filters = ToFileFilters(fileTypes);
-				FileBrowserView browser = new FileBrowserView(shortcuts, filters, defaultDirectory, null, FileBrowserView.Modes.Load);
+				OpenFileDialog dlg = new OpenFileDialog();
 
-#pragma warning disable
-				throw new NotImplementedException();
-
-				while (browser.IsOpen)
-					await Task.Delay(10);
-
-				result.Path = browser.FinalSelection as FileInfo;
-				useExplorerBrowser = browser.UseFileBrowser;
-			}
-
-			if (useExplorerBrowser)
-			{
-				result.Path = await App.Current.Dispatcher.InvokeAsync<FileInfo?>(() =>
+				if (defaultDirectory == null)
 				{
-					OpenFileDialog dlg = new OpenFileDialog();
-
-					if (defaultDirectory == null)
+					Shortcut? defaultShortcut = null;
+					foreach (Shortcut shortcut in shortcuts)
 					{
-						Shortcut? defaultShortcut = null;
-						foreach (Shortcut shortcut in shortcuts)
+						if (defaultDirectory == null && shortcut.Directory.Exists && defaultShortcut == null)
 						{
-							if (defaultDirectory == null && shortcut.Directory.Exists && defaultShortcut == null)
-							{
-								defaultDirectory = shortcut.Directory;
-							}
+							defaultDirectory = shortcut.Directory;
 						}
 					}
+				}
 
-					if (defaultDirectory != null)
-						dlg.InitialDirectory = defaultDirectory.FullName;
+				if (defaultDirectory != null)
+					dlg.InitialDirectory = defaultDirectory.FullName;
 
-					if (!Directory.Exists(dlg.InitialDirectory))
-					{
-						Log.Warning($"Initial directory of open dialog is invalid: {dlg.InitialDirectory}");
-						dlg.InitialDirectory = null;
-					}
+				if (!Directory.Exists(dlg.InitialDirectory))
+				{
+					Log.Warning($"Initial directory of open dialog is invalid: {dlg.InitialDirectory}");
+					dlg.InitialDirectory = null;
+				}
 
-					foreach (Shortcut? shortcut in shortcuts)
-					{
-						dlg.CustomPlaces.Add(new FileDialogCustomPlace(ParseToFilePath(shortcut.Path)));
-					}
+				foreach (Shortcut? shortcut in shortcuts)
+				{
+					dlg.CustomPlaces.Add(new FileDialogCustomPlace(ParseToFilePath(shortcut.Path)));
+				}
 
-					dlg.Filter = ToAnyFilter(fileTypes);
+				dlg.Filter = ToAnyFilter(fileTypes);
 
-					bool? result = dlg.ShowDialog();
+				bool? result = dlg.ShowDialog();
 
-					if (result != true)
-						return null;
+				if (result != true)
+					return null;
 
-					return new FileInfo(dlg.FileName);
-				});
-			}
+				return new FileInfo(dlg.FileName);
+			});
 
 			if (result.Path == null)
 				return result;
@@ -271,51 +293,27 @@ public class FileService : ServiceBase<FileService>
 
 		try
 		{
-			bool useExplorerBrowser = SettingsService.Current.UseWindowsExplorer;
-
 			string typeName = GetFileTypeName(typeof(T));
 
-			if (!useExplorerBrowser)
+			result.Path = await App.Current.Dispatcher.InvokeAsync<FileInfo?>(() =>
 			{
-				List<FileFilter> filters = new List<FileFilter>()
-					{
-						GetFileTypeFilter(typeof(T)),
-					};
+				SaveFileDialog dlg = new SaveFileDialog();
+				dlg.Filter = ToFilter(typeof(T));
+				dlg.InitialDirectory = defaultDirectory?.FullName ?? string.Empty;
 
-				FileBrowserView browser = new FileBrowserView(directories, filters, defaultDirectory, typeName, FileBrowserView.Modes.Save);
-
-#pragma warning disable
-				throw new NotImplementedException();
-
-				while (browser.IsOpen)
-					await Task.Delay(10);
-
-				result.Path = browser.FinalSelection as FileInfo;
-				useExplorerBrowser = browser.UseFileBrowser;
-			}
-
-			if (useExplorerBrowser)
-			{
-				result.Path = await App.Current.Dispatcher.InvokeAsync<FileInfo?>(() =>
+				if (!Directory.Exists(dlg.InitialDirectory))
 				{
-					SaveFileDialog dlg = new SaveFileDialog();
-					dlg.Filter = ToFilter(typeof(T));
-					dlg.InitialDirectory = defaultDirectory?.FullName ?? string.Empty;
+					Log.Warning($"Initial directory of save dialog is invalid: {dlg.InitialDirectory}");
+					dlg.InitialDirectory = null;
+				}
 
-					if (!Directory.Exists(dlg.InitialDirectory))
-					{
-						Log.Warning($"Initial directory of save dialog is invalid: {dlg.InitialDirectory}");
-						dlg.InitialDirectory = null;
-					}
+				bool? dlgResult = dlg.ShowDialog();
 
-					bool? dlgResult = dlg.ShowDialog();
+				if (dlgResult != true)
+					return null;
 
-					if (dlgResult != true)
-						return null;
-
-					return new FileInfo(dlg.FileName);
-				});
-			}
+				return new FileInfo(dlg.FileName);
+			});
 
 			if (result.Path == null)
 				return result;

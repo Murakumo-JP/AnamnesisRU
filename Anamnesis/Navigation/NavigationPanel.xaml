@@ -4,6 +4,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:XivToolsWpf="clr-namespace:XivToolsWpf.Controls;assembly=XivToolsWpf"
 	xmlns:ana="clr-namespace:Anamnesis"
+	xmlns:controls="clr-namespace:Anamnesis.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:Anamnesis.Navigation"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -231,6 +232,7 @@
 					Width="28"
 					Height="28"
 					ana:Behaviours.Tooltip="Scene_Import"
+					Click="OnImportClicked"
 					Style="{StaticResource TransparentIconButton}">
 					<XivToolsWpf:IconBlock
 						FontSize="14"
@@ -241,11 +243,61 @@
 					Width="28"
 					Height="28"
 					ana:Behaviours.Tooltip="Scene_Export"
+					Click="OnExportClicked"
 					Style="{StaticResource TransparentIconButton}">
 					<XivToolsWpf:IconBlock
 						FontSize="14"
 						Icon="FileExport" />
 				</Button>
+
+				<!--<ToggleButton
+					x:Name="ExportButton"
+					Height="28"
+					ana:Behaviours.Tooltip="Scene_Export"
+					Style="{StaticResource TransparentIconDropdownButton}">
+					<XivToolsWpf:IconBlock
+						FontSize="14"
+						Icon="FileExport" />
+				</ToggleButton>
+
+				<Popup
+					MinWidth="128"
+					AllowsTransparency="True"
+					IsOpen="{Binding IsChecked, ElementName=ExportButton}"
+					PlacementTarget="{Binding ElementName=ExportButton}"
+					StaysOpen="False">
+					<Grid Margin="4">
+						<controls:PopupBackground Grid.RowSpan="2" />
+
+						<StackPanel
+							Margin="9"
+							Orientation="Vertical">
+							<Button
+								Height="22"
+								HorizontalContentAlignment="Left"
+								Click="OnExportCharacterClicked"
+								Style="{StaticResource TransparentIconButton}">
+								<XivToolsWpf:TextBlock Key="File_Character" />
+							</Button>
+
+							<Button
+								Height="22"
+								HorizontalContentAlignment="Left"
+								Click="OnExportPoseClicked"
+								Style="{StaticResource TransparentIconButton}">
+								<XivToolsWpf:TextBlock Key="File_Pose" />
+							</Button>
+
+							<Button
+								Height="22"
+								HorizontalContentAlignment="Left"
+								Click="OnExportCameraClicked"
+								Style="{StaticResource TransparentIconButton}">
+								<XivToolsWpf:TextBlock Key="File_CameraShot" />
+							</Button>
+						</StackPanel>
+					</Grid>
+				</Popup>-->
 
 			</ToolBar>
 		</Grid>
