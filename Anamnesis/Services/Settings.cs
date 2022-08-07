@@ -60,7 +60,10 @@ public class Settings : INotifyPropertyChanged
 	public Binds KeyboardBindings { get; set; } = new();
 	public Dictionary<string, int> ActorTabOrder { get; set; } = new();
 	public Dictionary<string, bool> PosingBoneLinks { get; set; } = new();
-	public Dictionary<string, PanelService.PanelsData> Panels { get; set; } = new();
+	public Dictionary<string, PanelService.PanelsData> Panels { get; set; } = new()
+	{
+		{ "Anamnesis.Navigation.NavigationPanel", new(new(0, 0, 0, 0)) },
+	};
 
 	public double WindowOpcaticy
 	{

@@ -8,20 +8,7 @@
 	d:DesignHeight="600"
 	mc:Ignorable="d">
 
-	<Grid x:Name="ContentArea">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition />
-			<ColumnDefinition />
-		</Grid.ColumnDefinitions>
-
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-		</Grid.RowDefinitions>
+	<WrapPanel x:Name="ContentArea">
 
 		<local:ItemView
 			Grid.Row="0"
@@ -105,5 +92,5 @@
 			ItemModel="{Binding Equipment.LFinger}"
 			Slot="LeftRing" />
 
-	</Grid>
+	</WrapPanel>
 </UserControl>

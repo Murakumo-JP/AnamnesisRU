@@ -33,7 +33,6 @@ public interface IPanel
 	Rect Rect { get; set; }
 	Rect RelativeRect { get; set; }
 	bool ShowBackground { get; set; }
-	CloseModes CloseMode { get; set; }
 	bool Topmost { get; set; }
 	bool CanResize { get; set; }
 	bool IsOpen { get; }
@@ -43,12 +42,4 @@ public interface IPanel
 	void DragMove();
 	void SetParent(IPanel other) => other.Host.AddChild(this);
 	void Close();
-}
-
-public enum CloseModes
-{
-	None,
-	AutoClose,
-	Manual,
-	Both,
 }

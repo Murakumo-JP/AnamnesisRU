@@ -26,7 +26,7 @@ public class OverlayWindow : FloatingWindow
 
 	public override Rect Rect
 	{
-		get => base.Rect;
+		get => new Rect(this.Left, this.Top, this.Width + 1, this.Height + 1);
 		set
 		{
 			this.Width = value.Width;
@@ -87,6 +87,8 @@ public class OverlayWindow : FloatingWindow
 		SetWindowPos(this.windowInteropHelper.Handle, IntPtr.Zero, 0, 0, 0, 0, 0x0001);
 
 		this.UpdatePosition();
+
+		this.Activate();
 	}
 
 	protected override void UpdatePosition()

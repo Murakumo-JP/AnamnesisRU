@@ -9,8 +9,8 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:views="clr-namespace:Anamnesis.Actor.Views"
 	xmlns:views1="clr-namespace:Anamnesis.Views"
-	d:DesignHeight="450"
-	d:DesignWidth="800"
+	Width="350"
+	Height="450"
 	Icon="IdCardAlt"
 	TitleKey="Naviagation_Actor_Equipment"
 	mc:Ignorable="d">

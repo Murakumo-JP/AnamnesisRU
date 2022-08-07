@@ -10,8 +10,10 @@ using Anamnesis.Services;
 using FontAwesome.Sharp;
 using MaterialDesignThemes.Wpf;
 using PropertyChanged;
+using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,8 +38,8 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 
 	private IconChar icon;
 	private bool canResize = true;
-	private bool autoClose = true;
 	private bool playOpenAnimation = true;
+	private bool isOpeningAnimation = true;
 
 	public FloatingWindow()
 	{
@@ -59,27 +61,6 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 	public bool IsOpen { get; private set; }
 
 	public IEnumerable<IPanelGroupHost> Children => this.children;
-
-	[DependsOn(nameof(CloseMode))]
-	public bool CanChangeAutoClose => this.CloseMode == CloseModes.Both;
-
-	[DependsOn(nameof(CanChangeAutoClose))]
-	public bool AutoClose
-	{
-		get
-		{
-			if (this.CloseMode == CloseModes.None ||
-				this.CloseMode == CloseModes.Manual)
-				return false;
-
-			return this.autoClose;
-		}
-
-		set => this.autoClose = value;
-	}
-
-	[DependsOn(nameof(CloseMode))]
-	public bool CanManualyClose => this.CloseMode == CloseModes.Manual || this.CloseMode == CloseModes.Both;
 
 	public string? TitleKey
 	{
@@ -139,6 +120,11 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 		}
 		set
 		{
+			if (value.Height != this.Height || value.Width != this.Width)
+			{
+				this.SizeToContent = SizeToContent.Manual;
+			}
+
 			this.Left = (int)value.X;
 			this.Top = (int)value.Y;
 			this.Width = value.Width;
@@ -160,8 +146,7 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 	public MediaColor? TitleColor { get; set; }
 	public virtual bool CanPopOut => false;
 	public virtual bool CanPopIn => true;
-
-	public CloseModes CloseMode { get; set; } = CloseModes.Both;
+	public bool AutoClose { get; set; } = false;
 
 	public Rect RelativeRect
 	{
@@ -170,20 +155,37 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 			Rect screen = this.ScreenRect;
 			Rect pos = this.Rect;
 			Rect value = new();
-			value.X = (pos.X - screen.X) / screen.Width;
-			value.Y = (pos.Y - screen.Y) / screen.Height;
+			value.X = (pos.X - screen.X) / (screen.Width - pos.Width);
+			value.Y = (pos.Y - screen.Y) / (screen.Height - pos.Height);
 			value.Width = pos.Width;
 			value.Height = pos.Height;
+
+			Log.Information("< " + value);
 
 			return value;
 		}
 
 		set
 		{
+			Log.Information("> " + value);
+
 			Rect screen = this.ScreenRect;
 			Rect pos = this.Rect;
-			pos.X = screen.X + (screen.Width * value.X);
-			pos.Y = screen.Y + (screen.Height * value.Y);
+			pos.X = screen.X + (screen.Width * value.X) - (pos.Width * value.X);
+			pos.Y = screen.Y + (screen.Height * value.Y) - (pos.Height * value.Y);
+
+			if (value.Height > 0 || value.Width > 0)
+			{
+				this.SizeToContent = SizeToContent.Manual;
+			}
+			else if (value.Height > 0)
+			{
+				this.SizeToContent = SizeToContent.Width;
+			}
+			else if (value.Width > 0)
+			{
+				this.SizeToContent = SizeToContent.Height;
+			}
 
 			if (value.Height > 0)
 				pos.Height = value.Height;
@@ -201,11 +203,6 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 
 		Rect screen = this.ScreenRect;
 		Rect pos = this.Rect;
-
-		// Center in screen
-		pos.X = (screen.X + (screen.Width / 2)) - (pos.Width / 2);
-		pos.Y = (screen.Y + (screen.Height / 2)) - (pos.Height / 2);
-		this.Rect = pos;
 
 		double maxHeight = Math.Max(screen.Height - pos.Top, 0);
 
@@ -233,7 +230,6 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 		this.ShowBackground = copy.ShowBackground;
 		this.Topmost = copy.Topmost;
 		this.CanResize = copy.CanResize;
-		this.CloseMode = copy.CloseMode;
 
 		if (copy is FloatingWindow wnd)
 		{
@@ -257,7 +253,8 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 
 	public new void Close()
 	{
-		PanelService.SavePosition(this);
+		if (!this.isOpeningAnimation)
+			PanelService.SavePosition(this);
 
 		this.BeginStoryboard("CloseStoryboard");
 		this.IsOpen = false;
@@ -275,7 +272,7 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 	{
 		base.OnDeactivated(e);
 
-		if (this.CloseMode == CloseModes.AutoClose || (this.CloseMode == CloseModes.Both && this.autoClose))
+		if (this.AutoClose)
 		{
 			// If we have docked panels that are active,
 			// then we dont close yet.
@@ -379,13 +376,19 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 	private void OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
 	{
 		this.Activate();
+
 		////this.UpdatePosition();
-		PanelService.SavePosition(this);
+		////PanelService.SavePosition(this);
 	}
 
 	private void OnCloseStoryboardCompleted(object sender, EventArgs e)
 	{
 		base.Close();
+	}
+
+	private void OnOpenStoryboardCompleted(object sender, EventArgs e)
+	{
+		this.isOpeningAnimation = false;
 	}
 
 	private void OnPopOutClicked(object sender, RoutedEventArgs e)

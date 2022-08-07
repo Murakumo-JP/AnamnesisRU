@@ -10,7 +10,6 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:panels="clr-namespace:Anamnesis.Panels"
 	CanResize="False"
-	CloseMode="None"
 	ShowBackground="False"
 	Topmost="True"
 	mc:Ignorable="d">

@@ -12,10 +12,10 @@ using System.Windows;
 
 public class PanelService : ServiceBase<PanelService>
 {
-	public static T Show<T>()
+	public static T Show<T>(object? context = null)
 		where T : PanelBase
 	{
-		T? panel = Show(typeof(T)) as T;
+		T? panel = Show(typeof(T), context) as T;
 
 		if (panel == null)
 			throw new Exception($"Failed to create instance of panel: {typeof(T)}");
@@ -23,21 +23,53 @@ public class PanelService : ServiceBase<PanelService>
 		return panel;
 	}
 
-	public static PanelBase Show(Type type)
+	public static PanelBase Show(Type panelType, object? context = null)
 	{
 		IPanelGroupHost groupHost = CreateHost();
+		PanelBase? panel;
 
-		PanelBase? panel = Activator.CreateInstance(type, groupHost) as PanelBase;
+		try
+		{
+			panel = Activator.CreateInstance(panelType, groupHost) as PanelBase;
+		}
+		catch (Exception)
+		{
+			panel = Activator.CreateInstance(panelType, groupHost, context) as PanelBase;
+		}
 
 		if (panel == null)
-			throw new Exception($"Failed to create instance of panel: {type}");
+			throw new Exception($"Failed to create instance of panel: {panelType}");
 
+		panel.DataContext = context;
 		groupHost.PanelGroupArea.Content = panel;
 		groupHost.Show();
 
-		Rect? lastPos = GetLastPosition(panel);
+		// Copy width and height values from the inner panel to the host
+		if (panel.CanResize && (double.IsNormal(panel.Width) || double.IsNormal(panel.Height)))
+		{
+			Rect rect = groupHost.Rect;
+
+			if (double.IsNormal(panel.Width))
+				rect.Width = panel.Width;
+
+			if (double.IsNormal(panel.Height))
+				rect.Height = panel.Height + 28; // height of panel titlebar
+
+			panel.Width = double.NaN;
+			panel.Height = double.NaN;
+			groupHost.Rect = rect;
+		}
+
+		Rect? lastPos = GetLastPosition(groupHost);
 		if (lastPos != null)
+		{
 			groupHost.RelativeRect = (Rect)lastPos;
+		}
+		else
+		{
+			// Center screen
+			groupHost.RelativeRect = new Rect(0.5, 0.5, 0, 0);
+		}
 
 		return panel;
 	}
@@ -48,7 +80,7 @@ public class PanelService : ServiceBase<PanelService>
 		return new OverlayWindow();
 	}
 
-	public static Rect? GetLastPosition(IPanel panel)
+	public static Rect? GetLastPosition(IPanelGroupHost panel)
 	{
 		if (SettingsService.Current.Panels.TryGetValue(panel.Id, out PanelsData? data) && data != null)
 		{
@@ -58,7 +90,7 @@ public class PanelService : ServiceBase<PanelService>
 		return null;
 	}
 
-	public static void SavePosition(IPanel panel)
+	public static void SavePosition(IPanelGroupHost panel)
 	{
 		if (SettingsService.Current.Panels.TryGetValue(panel.Id, out PanelsData? data) && data != null)
 		{

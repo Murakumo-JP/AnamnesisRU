@@ -68,12 +68,6 @@ public abstract class PanelBase : UserControl, IPanel, INotifyPropertyChanged
 		set => this.Host.ShowBackground = value;
 	}
 
-	public CloseModes CloseMode
-	{
-		get => this.Host.CloseMode;
-		set => this.Host.CloseMode = value;
-	}
-
 	public bool Topmost
 	{
 		get => this.Host.Topmost;
