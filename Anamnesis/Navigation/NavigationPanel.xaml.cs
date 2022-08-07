@@ -51,6 +51,9 @@ public partial class NavigationPanel : PanelBase
 
 	private void OnIconMouseDown(object sender, MouseButtonEventArgs e)
 	{
+		if (e.LeftButton != MouseButtonState.Pressed)
+			return;
+
 		this.DragMove();
 	}
 
