@@ -186,13 +186,14 @@
 				Margin="0,0,6,0"
 				Orientation="Horizontal">
 
-				<TextBlock Text="Untitled scene" />
+				<TextBlock Text="{Binding Services.Scene.CurrentSceneName}" />
 				<XivToolsWpf:IconBlock
 					Margin="6,3,0,0"
 					VerticalAlignment="Center"
 					ana:Behaviours.Tooltip="Scene_Unsaved"
 					FontSize="6"
-					Icon="ExclamationTriangle" />
+					Icon="ExclamationTriangle"
+					Visibility="{Binding Services.Scene.UnsavedChanges, Converter={StaticResource B2V}}" />
 
 			</StackPanel>
 
@@ -206,6 +207,7 @@
 					Width="28"
 					Height="28"
 					ana:Behaviours.Tooltip="Scene_Save"
+					Click="OnSaveSceneClicked"
 					Style="{StaticResource TransparentIconButton}">
 					<XivToolsWpf:IconBlock
 						FontSize="14"
@@ -216,6 +218,7 @@
 					Width="28"
 					Height="28"
 					ana:Behaviours.Tooltip="Scene_Open"
+					Click="OnOpenSceneClicked"
 					Style="{StaticResource TransparentIconButton}">
 					<XivToolsWpf:IconBlock
 						FontSize="14"

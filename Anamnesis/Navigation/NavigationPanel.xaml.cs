@@ -81,4 +81,14 @@ public partial class NavigationPanel : PanelBase
 	{
 		this.NavigationContextMenu.IsOpen = true;
 	}
+
+	private void OnSaveSceneClicked(object sender, RoutedEventArgs e)
+	{
+		this.Services.Scene.Save();
+	}
+
+	private void OnOpenSceneClicked(object sender, RoutedEventArgs e)
+	{
+		this.Services.Scene.Open();
+	}
 }
