@@ -111,9 +111,9 @@ public class FileService : ServiceBase<FileService>
 		}
 	}
 
-	public static async Task Export()
+	public static Task Export()
 	{
-
+		return Task.CompletedTask;
 	}
 
 	/// <summary>
