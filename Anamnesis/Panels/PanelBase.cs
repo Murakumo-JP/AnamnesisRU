@@ -30,6 +30,8 @@ public abstract class PanelBase : UserControl, IPanel, INotifyPropertyChanged
 	public IPanelGroupHost Host { get; set; }
 	public bool IsOpen => this.Host.IsOpen;
 
+	public virtual string Id => this.GetType().ToString();
+
 	public string? TitleKey
 	{
 		get => this.Host.TitleKey;
@@ -52,6 +54,12 @@ public abstract class PanelBase : UserControl, IPanel, INotifyPropertyChanged
 	{
 		get => this.Host.Rect;
 		set => this.Host.Rect = value;
+	}
+
+	public Rect RelativeRect
+	{
+		get => this.Host.RelativeRect;
+		set => this.Host.RelativeRect = value;
 	}
 
 	public bool ShowBackground
@@ -94,7 +102,6 @@ public abstract class PanelBase : UserControl, IPanel, INotifyPropertyChanged
 	}
 
 	public void SetParent(IPanel other) => other.Host.AddChild(this);
-
 	public void Close() => this.Host.Close();
 
 	public async Task WhileOpen()

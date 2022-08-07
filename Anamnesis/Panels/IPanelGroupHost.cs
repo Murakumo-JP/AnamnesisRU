@@ -25,11 +25,13 @@ public interface IPanelGroupHost : IPanel
 
 public interface IPanel
 {
+	string Id { get; }
 	string? TitleKey { get; set; }
 	string? Title { get; set; }
 	IconChar Icon { get; set; }
 	Color? TitleColor { get; set; }
 	Rect Rect { get; set; }
+	Rect RelativeRect { get; set; }
 	bool ShowBackground { get; set; }
 	CloseModes CloseMode { get; set; }
 	bool Topmost { get; set; }

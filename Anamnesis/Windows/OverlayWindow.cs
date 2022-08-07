@@ -56,7 +56,7 @@ public class OverlayWindow : FloatingWindow
 				return new Rect(0, 0, 0, 0);
 
 			GetWindowRect(MemoryService.Process.MainWindowHandle, out Win32Rect gameRect);
-			return new Rect(0, 0, gameRect.Right - gameRect.Left, gameRect.Bottom - gameRect.Top);
+			return new Rect(gameRect.Left, gameRect.Top, gameRect.Right - gameRect.Left, gameRect.Bottom - gameRect.Top);
 		}
 	}
 

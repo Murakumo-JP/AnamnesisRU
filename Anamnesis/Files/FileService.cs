@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Anamnesis;
 using Anamnesis.GUI.Views;
+using Anamnesis.Navigation;
 using Anamnesis.Services;
 using Anamnesis.Utils;
 using Anamnesis.Windows;
@@ -107,7 +108,16 @@ public class FileService : ServiceBase<FileService>
 
 		if (result.File != null)
 		{
-			// TODO
+			if (result.File is IUpgradeCharacterFile upgradeFile)
+				result.File = upgradeFile.Upgrade();
+
+			if (result.File is CharacterFile characterFile)
+			{
+				NavigationService.Navigate(new("ImportCharacter", result));
+				return;
+			}
+
+			throw new NotImplementedException();
 		}
 	}
 

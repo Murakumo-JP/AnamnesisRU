@@ -50,6 +50,9 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 		this.TitleColor = Application.Current.Resources.GetTheme().ToolForeground;
 	}
 
+	// TODO: should be a combination of all child ids?
+	public string Id => ((IPanel)this.PanelGroupArea.Content).Id;
+
 	public IPanelGroupHost? ParentHost { get; set; }
 	public ContentPresenter PanelGroupArea => this.ContentPresenter;
 	public bool ShowBackground { get; set; } = true;
@@ -160,12 +163,49 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 
 	public CloseModes CloseMode { get; set; } = CloseModes.Both;
 
+	public Rect RelativeRect
+	{
+		get
+		{
+			Rect screen = this.ScreenRect;
+			Rect pos = this.Rect;
+			Rect value = new();
+			value.X = (pos.X - screen.X) / screen.Width;
+			value.Y = (pos.Y - screen.Y) / screen.Height;
+			value.Width = pos.Width;
+			value.Height = pos.Height;
+
+			return value;
+		}
+
+		set
+		{
+			Rect screen = this.ScreenRect;
+			Rect pos = this.Rect;
+			pos.X = screen.X + (screen.Width * value.X);
+			pos.Y = screen.Y + (screen.Height * value.Y);
+
+			if (value.Height > 0)
+				pos.Height = value.Height;
+
+			if (value.Width > 0)
+				pos.Width = value.Width;
+
+			this.Rect = pos;
+		}
+	}
+
 	public virtual new void Show()
 	{
 		base.Show();
 
 		Rect screen = this.ScreenRect;
 		Rect pos = this.Rect;
+
+		// Center in screen
+		pos.X = (screen.X + (screen.Width / 2)) - (pos.Width / 2);
+		pos.Y = (screen.Y + (screen.Height / 2)) - (pos.Height / 2);
+		this.Rect = pos;
 
 		double maxHeight = Math.Max(screen.Height - pos.Top, 0);
 
@@ -217,7 +257,8 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 
 	public new void Close()
 	{
-		// base.Close();
+		PanelService.SavePosition(this);
+
 		this.BeginStoryboard("CloseStoryboard");
 		this.IsOpen = false;
 	}
@@ -339,6 +380,7 @@ public partial class FloatingWindow : Window, IPanelGroupHost
 	{
 		this.Activate();
 		////this.UpdatePosition();
+		PanelService.SavePosition(this);
 	}
 
 	private void OnCloseStoryboardCompleted(object sender, EventArgs e)

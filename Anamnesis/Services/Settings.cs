@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Anamnesis.Keyboard;
+using Anamnesis.Panels;
 using PropertyChanged;
 
 [Serializable]
@@ -59,6 +60,7 @@ public class Settings : INotifyPropertyChanged
 	public Binds KeyboardBindings { get; set; } = new();
 	public Dictionary<string, int> ActorTabOrder { get; set; } = new();
 	public Dictionary<string, bool> PosingBoneLinks { get; set; } = new();
+	public Dictionary<string, PanelService.PanelsData> Panels { get; set; } = new();
 
 	public double WindowOpcaticy
 	{
