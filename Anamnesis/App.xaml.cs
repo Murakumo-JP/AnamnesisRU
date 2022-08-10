@@ -100,12 +100,8 @@ public partial class App : Application
 
 			if (SettingsService.Current.OverlayWindow)
 			{
-				IPanelGroupHost wnd = new OverlayWindow();
-				NavigationPanel nav = new(wnd);
-				wnd.PanelGroupArea.Content = nav;
-				wnd.Show();
-
-				this.MainWindow = wnd as Window;
+				NavigationPanel nav = PanelService.Show<NavigationPanel>();
+				this.MainWindow = nav.Host as Window;
 			}
 			else
 			{

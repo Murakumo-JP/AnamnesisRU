@@ -259,14 +259,14 @@
 				ShowText="{Binding ShowText}"
 				ToolTipKey="Naviagation_Actor_Equipment_Tip" />
 
-			<local:Shortcut
+			<!--<local:Shortcut
 				ContentPadding="10,0,0,0"
 				Context="{Binding Actor}"
 				Destination="Action"
 				Icon="Biking"
 				LabelKey="Naviagation_Actor_Action"
 				ShowText="{Binding ShowText}"
-				ToolTipKey="Naviagation_Actor_Action_Tip" />
+				ToolTipKey="Naviagation_Actor_Action_Tip" />-->
 
 			<local:Shortcut
 				ContentPadding="10,0,0,0"

@@ -25,13 +25,15 @@
 	mc:Ignorable="d">
 
 	<Window.Resources>
-		<Storyboard x:Key="OpenStoryboard">
+		<Storyboard
+			x:Key="OpenStoryboard"
+			Completed="OnOpenStoryboardCompleted">
 			<DoubleAnimation
 				Storyboard.TargetName="Self"
 				Storyboard.TargetProperty="Opacity"
 				From="0"
 				To="1"
-				Duration="00:00:00.2">
+				Duration="00:00:00.4">
 				<DoubleAnimation.EasingFunction>
 					<SineEase EasingMode="EaseOut" />
 				</DoubleAnimation.EasingFunction>
@@ -185,7 +187,7 @@
 			<ScrollViewer
 				Grid.Row="1"
 				Margin="1"
-				HorizontalScrollBarVisibility="Auto"
+				HorizontalScrollBarVisibility="Disabled"
 				VerticalScrollBarVisibility="Auto">
 				<ContentPresenter x:Name="ContentPresenter" />
 			</ScrollViewer>

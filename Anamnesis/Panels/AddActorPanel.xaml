@@ -13,7 +13,6 @@
 	xmlns:xivToolsWpfSelectors="clr-namespace:XivToolsWpf.Selectors;assembly=XivToolsWpf"
 	d:DesignHeight="450"
 	d:DesignWidth="800"
-	CloseMode="AutoClose"
 	Icon="Plus"
 	TitleKey="Naviagation_AddActor"
 	mc:Ignorable="d">

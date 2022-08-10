@@ -141,7 +141,14 @@ public partial class ItemView : UserControl
 		if (this.Actor?.CanRefresh != true)
 			return;
 
-		NavigationService.Navigate(new NavigationService.Request(this, "ActorEquipmentSelector", this));
+		try
+		{
+			NavigationService.Navigate(new NavigationService.Request(this, "ActorEquipmentSelector", this));
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "Failed to select new gear");
+		}
 
 		////EquipmentSelector selector = new EquipmentSelector(this.Slot, this.Actor);
 		////SelectorDrawer.Show(selector, this.Item, (i) => this.SetItem(i, selector.AutoOffhand, selector.ForceMainModel, selector.ForceOffModel));

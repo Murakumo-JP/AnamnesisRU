@@ -8,9 +8,8 @@
 	xmlns:local="clr-namespace:Anamnesis.Panels"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:wpf="http://materialdesigninxaml.net/winfx/xaml/themes"
-	d:DesignHeight="450"
-	d:DesignWidth="800"
-	CloseMode="Manual"
+	Width="800"
+	Height="512"
 	Icon="Cogs"
 	TitleKey="Naviagation_Settings"
 	mc:Ignorable="d">

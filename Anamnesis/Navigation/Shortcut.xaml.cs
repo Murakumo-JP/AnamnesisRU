@@ -7,6 +7,7 @@ using Anamnesis.Extensions;
 using Anamnesis.Services;
 using FontAwesome.Sharp;
 using PropertyChanged;
+using Serilog;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -89,7 +90,14 @@ public partial class Shortcut : UserControl
 
 	private void OnClicked(object sender, RoutedEventArgs e)
 	{
-		NavigationService.Navigate(new(this, this.Destination, this.Context));
+		try
+		{
+			NavigationService.Navigate(new(this, this.Destination, this.Context));
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "Failed to perform navigation");
+		}
 	}
 
 	private void OnMouseEnter(object sender, MouseEventArgs e)

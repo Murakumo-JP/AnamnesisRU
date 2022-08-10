@@ -2,19 +2,12 @@
 // Licensed under the MIT license.
 
 namespace Anamnesis.Navigation;
-
-using Anamnesis.Memory;
 using Anamnesis.Panels;
-using Anamnesis.Navigation;
-using Anamnesis.Services;
-using Anamnesis.Updater;
-using Anamnesis.Views;
 using PropertyChanged;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using XivToolsWpf.Extensions;
-using System;
+using Anamnesis.Files;
 
 /// <summary>
 /// Interaction logic for Navigation.xaml.
@@ -51,6 +44,9 @@ public partial class NavigationPanel : PanelBase
 
 	private void OnIconMouseDown(object sender, MouseButtonEventArgs e)
 	{
+		if (e.LeftButton != MouseButtonState.Pressed)
+			return;
+
 		this.DragMove();
 	}
 
@@ -77,5 +73,25 @@ public partial class NavigationPanel : PanelBase
 	private void OnTitlebarContextButtonClicked(object sender, RoutedEventArgs e)
 	{
 		this.NavigationContextMenu.IsOpen = true;
+	}
+
+	private void OnSaveSceneClicked(object sender, RoutedEventArgs e)
+	{
+		this.Services.Scene.Save();
+	}
+
+	private void OnOpenSceneClicked(object sender, RoutedEventArgs e)
+	{
+		this.Services.Scene.Open();
+	}
+
+	private void OnImportClicked(object sender, RoutedEventArgs e)
+	{
+		FileService.Import().Run();
+	}
+
+	private void OnExportClicked(object sender, RoutedEventArgs e)
+	{
+		FileService.Export().Run();
 	}
 }

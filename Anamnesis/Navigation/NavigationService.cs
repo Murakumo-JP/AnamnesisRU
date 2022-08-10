@@ -22,6 +22,9 @@ public class NavigationService : ServiceBase<NavigationService>
 		{ "ActorCustomize", typeof(CustomizePanel) },
 		{ "ActorEquipment", typeof(EquipmentPanel) },
 		{ "Camera", typeof(CameraPanel) },
+		{ "Pose", typeof(PosePanel) },
+		{ "Transform", typeof(TransformPanel) },
+		{ "ImportCharacter", typeof(ImportCharacterPanel) },
 	};
 
 	/// <summary>
@@ -35,40 +38,27 @@ public class NavigationService : ServiceBase<NavigationService>
 			if (!Panels.TryGetValue(request.Destination, out panelType))
 				throw new Exception($"No panel type found for navigation: {request.Destination}");
 
-			IPanelGroupHost groupHost = PanelService.CreateHost();
-			PanelBase? panel;
-
-			try
-			{
-				panel = Activator.CreateInstance(panelType, groupHost) as PanelBase;
-			}
-			catch (Exception)
-			{
-				panel = Activator.CreateInstance(panelType, groupHost, request.Context) as PanelBase;
-			}
-
-			if (panel == null)
-				throw new Exception($"Failed to create instance of panel: {panelType}");
-
-			panel.DataContext = request.Context;
-			groupHost.PanelGroupArea.Content = panel;
-
-			groupHost.Show();
+			PanelBase panel = PanelService.Show(panelType, request.Context);
 
 			// Move the panel to the target position next to the origin panel
-			PanelBase? originPanel = request.GetOriginPanel();
+			/*PanelBase? originPanel = request.GetOriginPanel();
 			if (originPanel != null)
 			{
-				Rect panelRect = panel.Rect;
-				Rect navRect = originPanel.Rect;
-				Point pos = originPanel.GetSubPanelDockOffset();
+				if (panel.CloseMode == CloseModes.AutoClose ||
+					panel.CloseMode == CloseModes.Both)
+				{
+					Rect panelRect = panel.Rect;
+					Rect navRect = originPanel.Rect;
+					Point pos = originPanel.GetSubPanelDockOffset();
 
-				panelRect.X = navRect.X + pos.X;
-				panelRect.Y = navRect.Y + pos.Y;
+					panelRect.X = navRect.X + pos.X;
+					panelRect.Y = navRect.Y + pos.Y;
 
-				panel.Rect = panelRect;
+					panel.Rect = panelRect;
+				}
+
 				panel.SetParent(originPanel);
-			}
+			}*/
 
 			return panel;
 		}

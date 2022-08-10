@@ -16,6 +16,7 @@ using XivToolsWpf;
 using System.Diagnostics;
 using Anamnesis.Navigation;
 using System.Collections.Generic;
+using Anamnesis.Panels;
 
 public class ServiceManager
 {
@@ -45,6 +46,8 @@ public class ServiceManager
 	public AnimationService Animation { get; } = new();
 	public Keyboard.HotkeyService Hotkeys { get; } = new();
 	public HistoryService History { get; } = new();
+	public SceneService Scene { get; } = new();
+	public PanelService Panels { get; } = new();
 
 	public async Task InitializeCriticalServices()
 	{
@@ -56,6 +59,8 @@ public class ServiceManager
 
 	public async Task InitializeServices()
 	{
+		await this.InitializeService(this.Panels);
+		await this.InitializeService(this.Scene);
 		await this.InitializeService(this.Navigation);
 		await this.InitializeService(this.Serializer);
 		await this.InitializeService(this.Update);
